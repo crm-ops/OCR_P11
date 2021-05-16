@@ -35,22 +35,29 @@ public without sharing class OrderActions {
 
         //Map<Id,Integer> countOrders = [SELECT AccountId , COUNT(Id) FROM Order WHERE AccountId IN :acntIds GROUP BY AccountId HAVING COUNT(Id) > 0];
         
-        AggregateResult[] countOrders = [SELECT AccountId , COUNT(Id) FROM Order WHERE AccountId IN :acntIds GROUP BY AccountId HAVING COUNT(Id) > 0];
+        AggregateResult[] countOrders = [SELECT AccountId, COUNT(Id) FROM Order WHERE AccountId IN :acntIds GROUP BY AccountId HAVING COUNT(Id) > 0];
         
+        List<Id> aIdsWithPositiveOrderCount = new List<Id>();
+        
+        for (AggregateResult co : countOrders) {
+            aIdsWithPositiveOrderCount.add((Id) co.get('AccountId'));
+        }
+
+       
         List<Account> acnt2update = [SELECT Id, Active__c FROM Account WHERE Id in :acntIds];
 
         for(Account act : acnt2update) {
 
-                for(AggregateResult countOrder : countOrders) {
+               
 
-                        if(act.Id == countOrder.get('AccountId')) {
+                        if(aIdsWithPositiveOrderCount.contains(act.Id)) {
                             act.Active__c=true;
                         }
                         else {
-                            act.Active__c=true;
+                            act.Active__c=false;
                         }
 
-                }
+                
 
         }
 
