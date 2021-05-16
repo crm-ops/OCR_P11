@@ -348,8 +348,8 @@ public class TestOrderTrigger {
 
             // we create both account Active although they do not yet have orders.
             // the purpose of this test is to check deletion note creation of orders
-            Account acc1 = new Account(Name = 'Test Account 1');
-            Account acc2 = new Account(Name = 'Test Account 2');
+            Account acc1 = new Account(Name = 'Test Account 1', Active__c =false);
+            Account acc2 = new Account(Name = 'Test Account 2', Active__c=false);
             
             List<Account> al = new List<Account>();
             al.add(acc1);
@@ -498,6 +498,11 @@ public class TestOrderTrigger {
            
             //set both account Active as they both have orders 
             
+            for (Account a : al) {
+                a.Active__c =true;
+            }
+
+            update al;
 
     
             listobase = [SELECT Id,  AccountId, Pricebook2Id FROM Order WHERE Pricebook2Id= :standardPriceBook.Id AND AccountId IN :accntIds];
@@ -524,18 +529,8 @@ public class TestOrderTrigger {
             //dml to insert line items & update orders in bulk 
             insert listoibase;
 
-
-            //Test sequence - get the order and attempt to activate it
-
             
-        
-            /*for ( Order o :listobase) {
-                o.Status ='Activated';
-
-            }
-
-            update listobase;
-            */
+          
 
             Test.startTest();
             //deleting just 1 Order for Account 1 so there are remaining orders - expecting Account to remain Active
@@ -576,11 +571,11 @@ public class TestOrderTrigger {
             Account acnt2 = [Select Active__c FROM Account WHERE NAME = 'Test Account 2'];
             system.assertEquals(false,acnt2.Active__c);
 
-            AggregateResult[] nbOrders = [SELECT Count(Id) nborders from ORDER];  
+            //AggregateResult[] nbOrders = [SELECT Count(Id) nborders from ORDER];  
 
-            Integer nb = (Integer)nbOrders[0].get('nborders');
+            //Integer nb = (Integer)nbOrders[0].get('nborders');
            
-            system.assertEquals(4, nb);
+            //system.assertEquals(4, nb);
 
 
         }
